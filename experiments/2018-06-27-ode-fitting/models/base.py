@@ -290,8 +290,8 @@ class ODEModel(object):
                 upper = v.upper if v.upper is not None else +numpy.inf
                 tmp.append((lower, upper))
         return tmp
-
-    def _genparams(self, nrep):
+    
+    def _genparams(self, nrep, random_state=None):
         """
         Generate parameters at random.
         """
@@ -300,7 +300,7 @@ class ODEModel(object):
         size = (nrep, len(bounds))
         loc = lower_bounds
         scale = numpy.asarray(upper_bounds) - numpy.asarray(lower_bounds)
-        x0seq = scipy.stats.uniform.rvs(loc, scale, size)
+        x0seq = scipy.stats.uniform.rvs(loc, scale, size, random_state)
         idx = numpy.isinf(x0seq)
         x0seq[idx] = numpy.broadcast_to(lower_bounds, x0seq.shape)[idx] + 1.0
         return x0seq
@@ -348,7 +348,7 @@ class ODEModel(object):
         yarr = obj.simulate(self.times)
         return (yarr - self.data).ravel()
 
-    def fit(self, data, times=None, x0=None, nrep=10, **kwargs):
+    def fit(self, data, times=None, x0=None, nrep=10, random_state=None, **kwargs):
         """
         Fit this model to empirical data with least squares.
 
@@ -372,6 +372,9 @@ class ODEModel(object):
             Repeat the fitting multiple times and return the solution with
             minimum cost.
 
+        random_state : instance of numpy.random.Generator
+            Random generator  
+
         Returns
         =======
         self : a fitted instance of ODEModel
@@ -393,7 +396,7 @@ class ODEModel(object):
         if x0 is None:
             # Draw x0 at random from bounds. If any unknown is unconstrained,
             # set the initial guess to lower + 1.0 (a safe value).
-            x0seq = self._genparams(nrep)
+            x0seq = self._genparams(nrep, random_state)
         else:
             # Use provided x0 for all repetitions
             x0seq = (x0 for i in range(nrep))

@@ -89,7 +89,7 @@ def readdata(path, stories=None):
             yield (story, df)
 
 
-def fit(df, modelcls='HoaxModel', fity0="non-obs", nrep=10):
+def fit(df, modelcls='HoaxModel', fity0="non-obs", nrep=10, random_state=None):
     t0 = df.index[0]
     BA0 = df.loc[t0]['fake']
     FA0 = df.loc[t0]['fact']
@@ -98,7 +98,7 @@ def fit(df, modelcls='HoaxModel', fity0="non-obs", nrep=10):
     m.inity0(fity0, BA0, FA0)
     logger.info("Fit y0: {}".format(fity0))
     data = numpy.c_[df['fake'], df['fact']]
-    m.fit(data, nrep=nrep)
+    m.fit(data, nrep=nrep, random_state=random_state)
     return m
 
 
@@ -152,12 +152,12 @@ def plot(model, df, story):
     return fig
 
 
-def mainone(story, df, modelcls='HoaxModel', fity0="non-obs"):
+def mainone(story, df, modelcls='HoaxModel', fity0="non-obs", random_state=None):
     logger.info("-" * TERM_COLS)
     logger.info("Story: {}".format(story))
     tic = datetime.datetime.now()
     logger.info("Fit started: {}".format(tic))
-    fitted_model = fit(df, modelcls=modelcls, fity0=fity0)
+    fitted_model = fit(df, modelcls=modelcls, fity0=fity0, random_state=random_state)
     try:
         report(df, fitted_model)
         plot(fitted_model, df, story)
@@ -184,7 +184,7 @@ def main(path, stories=None, modelcls='HoaxModel', fity0="non-obs", seed=None):
     logging.getLogger().addHandler(console)
     logger.info("Logging to: {}".format(log_path))
     if seed is not None:
-        numpy.random.seed(seed)
+        random_state = numpy.random.default_rng(seed)
         logger.info("PRNG Seed: {}".format(seed))
     tic = datetime.datetime.now()
     plt.close("all")
@@ -200,7 +200,7 @@ def main(path, stories=None, modelcls='HoaxModel', fity0="non-obs", seed=None):
     }
     for story, df in readdata(path, stories=stories):
         try:
-            fitted_model = mainone(story, df, modelcls=modelcls, fity0=fity0)
+            fitted_model = mainone(story, df, modelcls=modelcls, fity0=fity0, random_state=random_state)
             tmp["models"][story] = fitted_model
         except Exception:
             logger.exception("Exception on story {}:".format(story))
