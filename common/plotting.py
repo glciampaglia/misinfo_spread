@@ -53,13 +53,13 @@ def plotall(df, max_nrows, max_ncols, max_figsize, **kwargs):
         subplots_kwargs = dict(nrows=nrows, ncols=ncols,
                                figsize=figsize)
 
-        fig, axs = plt.subplots(**subplots_kwargs, sharex=True)
+        fig, axs = plt.subplots(**subplots_kwargs)
 
         for k, ax in zip(keys_to_plot, numpy.ravel(axs)):
             ts = df.loc[k].set_index('timestamp')
             t0 = ts.index[0].date()
             ts = ts.reset_index(drop=True)
-            ts.plot(ax=ax, color=['r', 'b'], legend=False, **kwargs)
+            ts.plot(ax=ax, color=['gray', 'black'], legend=False, **kwargs)
             ax.set_xlabel('')
             ax.set_title("${}$".format(k))
             ymin, ymax = ax.get_ylim()
@@ -71,32 +71,19 @@ def plotall(df, max_nrows, max_ncols, max_figsize, **kwargs):
         axs = numpy.atleast_2d(axs)
         axs[0, 0].legend(frameon=False, loc='best')
 
-        # Add x-label on bottom row
-        if ncols % 2 == 0:
-            # If there is an even number of columns, then add x-label every
-            # other plot
-            axs_to_xlabel = [axs[-1, jj] for jj in range(0, ncols, 2)]
-        else:
-            # Else add x-label to the center plot only
-            axs_to_xlabel = [axs[-1, ncols // 2]]
-        for ax in axs_to_xlabel:
-            ax.set_xlabel('Hours since $t_0$', fontsize='x-large')
-        # Add y-label on left column
-        if nrows % 2 == 0:
-            # Add y-label every other plot
-            axs_to_ylabel = [axs[ii, 0] for ii in range(0, nrows, 2)]
-        else:
-            axs_to_ylabel = [axs[nrows // 2, 0]]
-        for ax in axs_to_ylabel:
-            ax.set_ylabel('Active Users', fontsize='x-large')
+        # subplots axis label (requires matplotlib 3.4.0+)
+        fig.supxlabel('Hours since $t_0$', fontsize='x-large')
+        fig.supylabel('Active Users', fontsize='x-large')
 
         # delete any unused subplot
         for ax in axs.ravel()[n_subplots:]:
             fig.delaxes(ax)
 
         # set tight layout
-        plt.tight_layout(pad=0.1)
-        # plt.savefig("ALLstories_DEC.pdf")
+        plt.tight_layout(pad=0.2)
+        path = f"allstories-{i}-{j-1}.pdf"
+        plt.savefig(path)
+        print(f"Written: {path}")
         plt.show()
 
 
