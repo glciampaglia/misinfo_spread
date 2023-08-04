@@ -209,13 +209,15 @@ def main(path, stories=None, modelcls='HoaxModel', fity0="non-obs", nrep=10, see
         "path": os.path.relpath(path, start=os.path.expanduser('~')),
         "modelcls": modelcls,
         "created": NOW.isoformat(),
-        "models": {}
+        "models": {},
+        "data": {}
     }
     for story, df in readdata(path, stories=stories):
         try:
             fitted_model = mainone(story, df, modelcls=modelcls, fity0=fity0, 
                                    random_state=random_state, nrep=nrep)
             tmp["models"][story] = fitted_model
+            tmp["data"][story] = df
         except Exception:
             logger.exception("Exception on story {}:".format(story))
     output_path = OPATH_MOD.format(model=modelcls, timestamp=NOW.isoformat())
@@ -227,6 +229,24 @@ def main(path, stories=None, modelcls='HoaxModel', fity0="non-obs", nrep=10, see
     if matplotlib.is_interactive():
         plt.show()
 
+
+def replicate(path):
+    with closing(open(path, "rb")) as f:
+        obj = pickle.load(f)
+    random_state = numpy.random.default_rng(obj['seed'])
+    for story in obj['models']:
+        pickled_model = obj['models'][story]
+        df = obj['data'][story]
+        new_model = mainone(story, df, modelcls=obj['modelcls'], 
+                            fity0=obj['fity0'], random_state=random_state,
+                            nrep=obj['nrep'])
+        numpy.testing.assert_array_equal(pickled_model.theta,
+                                         new_model.theta,
+                                         f"theta differs: story {story}")
+        numpy.testing.assert_array_equal(pickled_model.y0,
+                                         new_model.y0,
+                                         f"y0 differs: story {story}")
+    print("Replication successful.")
 
 epilog = """
 By default, all stories in a data file will be fit. If a compartment is not
