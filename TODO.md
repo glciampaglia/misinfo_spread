@@ -31,17 +31,17 @@ Legend:
 - [ ] Plot fit results: different models same fity0 (for non-obs, all, none);
 - [X] ~~Re-run testing plots for SegHoaxModel for slides;~~
 - [ ] Inspect fit results for possible integration errors; 
-- [ ] Extract fitted parameters;
+- [X] Extract fitted parameters;
 - [X] Update presentation slides (new plots, fitted parameters);
 
 ## Normal priority: 
 - [ ] Write script to sweep parameter space for systematic testing fit reconstruction;
-- [ ] Write k-means + PCA script for model-based clustering;
+- [X] Write k-means + PCA script for model-based clustering;
 - [ ] Forecast y(t) (for t=12h,24h,48h,168h) with variable-size training set;
-- [ ] Repeat fit on the full dataset;
+- [X] ~~Repeat fit on the full dataset;~~
 
 ## Low priority:
-- [ ] Add option to cumulate observations and model before fitting with `least_squares`;
+- [X] ~~Add option to cumulate observations and model before fitting with `least_squares`;~~
 - [ ] Repeat fit on number of tweets instead of number of users;
 - [ ] Fix issue with `ODEModel.summary` (see FIXME in `models/base.py`)
 - [ ] Fix issue with root logger (see FIXME in `fit.py`);
@@ -51,7 +51,7 @@ Legend:
 - [ ] Write Snakefile(s) for replication;
 - [ ] Create minimal environment for replication;
 - [X] ~~Test `scipy.integrate.solve_ivp` as replacement for `odeint`;~~
-- [ ] Implement more models from literature (see in `models.__init__.py`);
+- [X] ~~Implement more models from literature (see in `models.__init__.py`);~~
 - [ ] Write test cases for models.base.Variable, models.base.ODEModel;
 - [ ] Write test cases for odeint based on `test_fitting.py` (fit synthetic data);
 - [ ] Make test case based on `odecomp.py` (compare odeint with prob updating);
